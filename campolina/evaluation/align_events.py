@@ -17,7 +17,7 @@ import multiprocessing as mp
 import pod5 as p5
 from Bio import Seq
 
-pl.enable_string_cache(enable=True)
+pl.enable_string_cache()
 pl.Config.set_fmt_str_lengths(38)
 os.environ['POLARS_MAX_THREADS'] = '32'
 

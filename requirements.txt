@@ -1,0 +1,14 @@
+Bio==1.8.0
+biopython==1.84
+click==8.1.7
+duckdb==1.2.2
+numpy==2.3.0
+pandas
+pod5
+polars
+pyarrow==18.0.0
+pysam==0.22.1
+pytorch_tcn==1.2.1
+scipy==1.15.3
+torch==2.6.0
+tqdm==4.67.1

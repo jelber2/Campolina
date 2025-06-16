@@ -9,25 +9,24 @@ import multiprocessing as mp
 import torch
 import numpy as np
 from polars.polars import first
-import torch.profiler
+#import torch.profiler
 #import torch_tensorrt
 from torch.utils.data import DataLoader
 
 os.environ['POLARS_MAX_THREADS'] = '32'
 
 import polars as pl
-pl.enable_string_cache(enable=True)
+pl.enable_string_cache()
 pl.Config.set_fmt_str_lengths(38)
 import pandas as pd
 import pyarrow.parquet as pq
 import pyarrow as pa
 
-from data.pod5_util import *
-from data.utils import *
-from data.output_utils import *
-from data.loader_utils import *
-from model.model import *
-#from model.tcn_model import TCNEventDetector
+from campolina.data.pod5_util import *
+from campolina.data.utils import *
+from campolina.data.output_utils import *
+from campolina.data.loader_utils import *
+from campolina.model.model import *
 
 mp.set_start_method('spawn', force=True)
 
