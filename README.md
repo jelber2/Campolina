@@ -15,7 +15,7 @@ This is the official implementation of the paper "Campolina: A Deep Neural Frame
 
 ## About
 Nanopore sequencing provides real-time, long-read sequencing, enabling the direct analysis of nucleic acids. The real-time methods allow parallel execution of sequencing and analysis by processing raw nanopore signals, the immediate product of nanopore sequencing, at the same rate as they are produced. The core step of real-time frameworks, segmentation of raw nanopore signals into events corresponding to individual nucleotide translocations, is traditionally done with an algorithmic approach, which is insufficiently robust in noisy regions of the signal. We propose Campolina, a first deep-learning framework for accurate segmentation of raw nanopore signals. Campolina is a convolution-based model trained to identify event borders in raw nanopore signals. We extensively compare Campolina with the traditional Scrappie algorithm on R9.4.1 and R10.4.1 datasets. To evaluate the quality of the segmentation, we develop an evaluation pipeline that quantifies how well the obtained events match the ground truth and the corresponding reference. Additionally, we test Campolina as a segmentation strategy in the existing real-time frameworks, Sigmoni and RawHash2. Campolina significantly enhances the quality of segmentation compared with the algorithmic approach, and improves the performance of real-time frameworks, all while maintaining time efficiency, thereby increasing the potential of effective real-time analyses.
- <img src="./imgs/FullCampolinaPipelineDense.pdf" width="1000">
+ <img src="./imgs/CampolinaPipeline.png" width="1000">
 
 ## Quick Start - Inference
 Use following commands for the installation (Prerequisites: ```Python>=3.8``` and ```CUDA>=11.8```):
