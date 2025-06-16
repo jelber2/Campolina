@@ -65,10 +65,6 @@ python align_events.py
 pyton assess_segmentation_quality.py
 ```
 #### Example
-To evaluate the fine-tuned RiNALMo model and prediction head on archiveII 5S rRNA test dataset for secondary structure prediction, use the ```rinalmo_giga_ss_archiveII-5s_ft.pt``` weights. Here, we provide an example run command.
-```
-python train_sec_struct_prediction.py ./ss_data --test_only --init_params ./weights/rinalmo_giga_ss_archiveII-5s_ft.pt --dataset archiveII_5s --prepare_data --output_dir ./outputs/archiveII/5s/ --accelerator gpu --devices 1
-```
 
 ## Contact
 If you have any questions, please feel free to email the authors or open an issue.
