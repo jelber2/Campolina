@@ -240,8 +240,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--bam', type='str', required=True, help="The path to the .bam file containing refined event borders stored under RR tag. This can be constructed following the ground truth pipeline")
-    parser.add_argument('--full_events', type='str', required=True, help="The path to a csv file generated from parquet file with full information on predicted events. The csv file can be constructed from parquet with convert_parquet_for_analysis.py")
-    parser.add_argument('--alignments', type='str', required=True, help="The path to aligned predicted and ground truth events obtained by running align_events.py")
+    parser.add_argument('--bam', type=str, required=True, help="The path to the .bam file containing refined event borders stored under RR tag. This can be constructed following the ground truth pipeline")
+    parser.add_argument('--full_events', type=str, required=True, help="The path to a csv file generated from parquet file with full information on predicted events. The csv file can be constructed from parquet with convert_parquet_for_analysis.py")
+    parser.add_argument('--alignments', type=str, required=True, help="The path to aligned predicted and ground truth events obtained by running align_events.py")
 
     main(parser.parse_args())
