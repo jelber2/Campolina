@@ -324,18 +324,14 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--remora_bam', default='/home/bakics/scratch/Campolina_paper/segmenteval/R10_zymo_segmenteval_subset/refined_R10_zymo_segmenteval_subset.bam')
-    parser.add_argument('--predictions', default='/home/bakics/scratch/Campolina_paper/segmenteval/R10_zymo_segmenteval_subset/R10_Zymo_segmenteval_14112024_Focal_alpha0_8_gamma1_alpha5000_beta0_05_eta10_5channel_final2048_400bps_events_new.csv')
-    parser.add_argument('--pod5_file', default='/home/bakics/scratch/Campolina_paper/segmenteval/R10_zymo_segmenteval_subset/R10_zymo_segmenteval_subset.pod5')
+    parser.add_argument('--remora_bam', default='/home/bakics/scratch/Campolina_paper/segmenteval/R10_zymo_segmenteval_subset/refined_R10_zymo_segmenteval_subset.bam', help='The path to the .bam file containing refined event borders stored under RR tag. This can be constructed following the ground truth pipeline')
+    parser.add_argument('--predictions', default='/home/bakics/scratch/Campolina_paper/segmenteval/R10_zymo_segmenteval_subset/R10_Zymo_segmenteval_14112024_Focal_alpha0_8_gamma1_alpha5000_beta0_05_eta10_5channel_final2048_400bps_events_new.csv', help='The path to a csv file generated from parquet file with full information on predicted events. The csv file can be constructed from parquet with convert_parquet_for_analysis.py')
+    parser.add_argument('--pod5_file', default='/home/bakics/scratch/Campolina_paper/segmenteval/R10_zymo_segmenteval_subset/R10_zymo_segmenteval_subset.pod5', help='Path to .pod5 with the corresponding signals')
     #parser.add_argument('--read_ids', default=['af83f8de-ce0e-4ed1-9e75-605304a5f74d'], nargs='+')
-    parser.add_argument('--read_ids', default=None, nargs='+')
-    parser.add_argument('--kmer_model', default='/home/bakics/remora_analysis/9mer_levels_v1_400bps.txt')
+    parser.add_argument('--kmer_model', default='/home/bakics/remora_analysis/9mer_levels_v1_400bps.txt', help='The path to the corresponding k-mer model file in R10 format')
+    parser.add_argument('--filename_description', default='005665c5-7b3f-44c8-989e-d0e23af14b23', help='The prefix of the final output file')
     parser.add_argument('--tgt_dir', default='./')
-    parser.add_argument('--filename_description', default='005665c5-7b3f-44c8-989e-d0e23af14b23')
     parser.add_argument('--workers', type=int, default=1)
     parser.add_argument('--delete_src', action='store_true')
-    parser.add_argument('--remove_hard', action='store_true')
-    parser.add_argument('--trimmed', action='store_true')
-    parser.add_argument('--full_vs_trimmed', action='store_true')
 
     main(parser.parse_args())
