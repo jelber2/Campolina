@@ -33,10 +33,10 @@ cd Campolina
 ```
 2. Create conda environment. All external dependencies should be contained in ```environment.yml```.
 ```bash
-# create conda environment for RiNALMo
+# create conda environment for Campolina
 conda env create -f environment.yml
 
-# activate RiNALMo environment
+# activate Campolina environment
 conda activate campolina
 ```
 3. Download pre-trained weights.
