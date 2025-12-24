@@ -19,8 +19,8 @@ BAM_OUTPUT="basecalls.bam"
 
 # Step 1: Run dorado basecaller
 "$DORADO" basecaller -x "$GPU" --emit-moves \
-  --reference "$REFERENCE" -o "$BAM_OUTPUT" \
-  "$MODEL" "$READS"
+  --reference "$REFERENCE" \
+  "$MODEL" "$READS" > "$BAM_OUTPUT"
 
 # Step 2: Run refine_signals.py
 python refine_signals.py \
