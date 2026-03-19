@@ -1,6 +1,7 @@
 import os
 import tqdm
 import torch
+import warnings
 
 import numpy as np
 from click.core import batch
@@ -17,7 +18,8 @@ from torch.utils.data import Dataset, DataLoader
 
 def safe_zscore(a, axis=None):
     """zscore that returns zeros instead of NaN for constant or empty slices."""
-    with np.errstate(invalid='ignore', divide='ignore'):
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', RuntimeWarning)
         result = stats.zscore(a, axis=axis)
     return np.nan_to_num(result, nan=0.0, posinf=0.0, neginf=0.0)
 
