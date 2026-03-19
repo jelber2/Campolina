@@ -61,13 +61,12 @@ def writer_worker(queue, output_path, schema, mode):
 
 
 def predict_detect(model, batch, device):
-    torch.cuda.synchronize()
-    prediction_start = time.time()
-    #with torch.autocast(device_type="cuda"), torch.no_grad():
-    #logits = model(torch.Tensor(batch).to(device, non_blocking=True)).squeeze().cpu()
-    logits = model(torch.Tensor(batch).to(device)).squeeze().detach().cpu()
-    #logits = model(batch).squeeze()
-    torch.cuda.synchronize()
+    if device.type == 'cuda':
+        torch.cuda.synchronize()
+    with torch.no_grad():
+        logits = model(batch).squeeze().cpu()
+    if device.type == 'cuda':
+        torch.cuda.synchronize()
     return logits
 
 
@@ -103,15 +102,19 @@ def predict(model_path, devices, pod5_rids_pairs, bs, tgt_file, workers, mode):
     for pod5_path, rids in pod5_rids_pairs:
         reader = p5.Reader(pod5_path)
         for chunks, chunk_borders, read_ids, signal_chunks in tqdm.tqdm(get_raw_batch3(reader, rids, bs)):
-            #torch_chunks = torch.Tensor(np.array(chunks)).half().to(devices[0], non_blocking=True)
             torch_chunks = torch.Tensor(np.array(chunks)).to(devices[0])
             cumsum_sig_gpu, cumsum_sig_square_gpu = comp_cumsum_gpu(torch_chunks)
             tstat1_gpu = comp_tstat_gpu(cumsum_sig_gpu, cumsum_sig_square_gpu, 6000, 3)
+            del cumsum_sig_gpu, cumsum_sig_square_gpu
             diff_gpu = diff1_gpu(torch_chunks)
             gpu_w_means, gpu_w_stds = window_mean_std_gpu(torch_chunks, wlen=3)
             signal = torch.stack([torch_chunks, diff_gpu, gpu_w_means, gpu_w_stds, tstat1_gpu], dim=1)
+            del torch_chunks, diff_gpu, gpu_w_means, gpu_w_stds, tstat1_gpu
 
             logits = predict_detect(model, signal, devices[0])
+            del signal
+            if devices[0].type == 'cuda':
+                torch.cuda.empty_cache()
             queue.put((logits, chunk_borders, read_ids, signal_chunks))
             batch_id += 1
 
@@ -177,7 +180,7 @@ if __name__ == '__main__':
     parser.add_argument('--tgt_dir', type=Path,
                         default='./')
     parser.add_argument('--workers', type=int, default=4)
-    parser.add_argument('--bs', type=int, default=4096)
+    parser.add_argument('--bs', type=int, default=256)
     parser.add_argument('--gpu', default=[5])
     parser.add_argument('--abbrev', type=str, default='test_multithread')
     parser.add_argument('--delete_src', action='store_true', default=False)
