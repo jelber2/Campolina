@@ -1,10 +1,22 @@
 import argparse
 import os
+import warnings
 import tqdm
 
 from pathlib import Path
 from collections import Counter, defaultdict
 import multiprocessing as mp
+
+# Suppress numpy RuntimeWarnings (empty-slice mean/std, invalid divide) that arise
+# from constant or zero-length signal segments during chunked inference.
+warnings.filterwarnings('ignore', category=RuntimeWarning,
+                        message='.*Mean of empty slice.*')
+warnings.filterwarnings('ignore', category=RuntimeWarning,
+                        message='.*Degrees of freedom <= 0.*')
+warnings.filterwarnings('ignore', category=RuntimeWarning,
+                        message='.*invalid value encountered.*')
+warnings.filterwarnings('ignore', category=RuntimeWarning,
+                        message='.*Precision loss.*')
 
 import torch
 import numpy as np

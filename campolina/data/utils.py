@@ -339,7 +339,12 @@ def process_signal_output_format(signal, all_peaks, chunk_starts, read_id):
         return pl.LazyFrame(schema=cols)
     signal_peaks = np.concatenate((np.array([0]), signal_peaks))
     #print(len(signal_peaks), len(np.unique(signal_peaks)))
-    event_descriptors = [(read_id, signal_peak, len(e), np.mean(e), np.std(e)) for signal_peak, e in zip(signal_peaks, signal_events)]      #TODO want to make this faster, myb put into dataframe and then apply mean, std, len to the column
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', RuntimeWarning)
+        event_descriptors = [(read_id, signal_peak, len(e),
+                              float(np.mean(e)) if len(e) > 0 else 0.0,
+                              float(np.std(e)) if len(e) > 0 else 0.0)
+                             for signal_peak, e in zip(signal_peaks, signal_events)]
     frame = pl.LazyFrame(event_descriptors, schema=cols, orient='row')
     #collected = frame.collect()
     #event_descriptors.schema = cols

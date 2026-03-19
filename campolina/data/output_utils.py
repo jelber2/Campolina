@@ -1,4 +1,5 @@
 from signal import signal
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -87,7 +88,11 @@ def process_analysis_output_format(peaks, chunk_borders, read_ids, chunks):
     except TypeError:
         print(f'TypeError for peaks: {signal_peaks}')
         return pl.LazyFrame(schema=cols)
-    event_descriptors = [(rid, peak, len(e), np.mean(e), np.std(e)) for rid, peak, e in zip(full_rids, full_peaks, signal_events)]
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', RuntimeWarning)
+        event_descriptors = [(rid, peak, len(e), float(np.mean(e)) if len(e) > 0 else 0.0,
+                              float(np.std(e)) if len(e) > 0 else 0.0)
+                             for rid, peak, e in zip(full_rids, full_peaks, signal_events)]
     frame = pl.LazyFrame(event_descriptors, schema=cols, orient='row')
     return frame
 
