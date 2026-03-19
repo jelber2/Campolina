@@ -1,0 +1,34 @@
+modules = ["python-3.12", "bash"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["arrow-cpp", "bcftools", "bzip2", "cairo", "curl", "ffmpeg-full", "freetype", "ghostscript", "gitFull", "glibcLocales", "gobject-introspection", "gtk3", "hdf5", "htslib", "libdeflate", "libiconv", "libxcrypt", "openssh", "openssl", "pkg-config", "qhull", "samtools", "tcl", "tk", "xsimd", "xz", "zlib"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python3 -c \"from campolina.model.model import EventDetector; from campolina.model.tcn_model import TCNEventDetector; import torch; import numpy; import pod5; import pysam; print('Campolina library loaded successfully!'); print(f'PyTorch: {torch.__version__}'); print(f'NumPy: {numpy.__version__}'); print('Ready for inference. See README for usage instructions.'); import time; time.sleep(3600)\""
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[deployment]
+deploymentTarget = "vm"
+run = ["python3", "inference.py", "--help"]
