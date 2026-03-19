@@ -13,7 +13,7 @@ from polars.polars import first
 #import torch_tensorrt
 from torch.utils.data import DataLoader
 
-os.environ['POLARS_MAX_THREADS'] = '32'
+os.environ['POLARS_MAX_THREADS'] = '10'
 
 import polars as pl
 pl.enable_string_cache()

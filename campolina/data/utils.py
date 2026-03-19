@@ -15,6 +15,13 @@ import time
 from torch.utils.data import Dataset, DataLoader
 
 
+def safe_zscore(a, axis=None):
+    """zscore that returns zeros instead of NaN for constant or empty slices."""
+    with np.errstate(invalid='ignore', divide='ignore'):
+        result = stats.zscore(a, axis=axis)
+    return np.nan_to_num(result, nan=0.0, posinf=0.0, neginf=0.0)
+
+
 log = False
 
 def merge_csvs(src, tgt_dir, abbrev, delete_src=True):
@@ -96,13 +103,13 @@ def get_raw_batch3(reader, read_ids, bs, chunk_len=6000, log=False):
         nonnorm_chunks = np.split(signal, borders)
         borders = [0] + borders
         if len(nonnorm_chunks) > 1:
-            chunks = stats.zscore(nonnorm_chunks[:-1], axis=1)
+            chunks = safe_zscore(nonnorm_chunks[:-1], axis=1)
             final_chunk = np.concatenate(
-                (stats.zscore(nonnorm_chunks[-1]), np.zeros(chunk_len - len(nonnorm_chunks[-1]))))
+                (safe_zscore(nonnorm_chunks[-1]), np.zeros(chunk_len - len(nonnorm_chunks[-1]))))
             chunks = np.vstack((chunks, final_chunk))
         else:
             chunks = np.expand_dims(
-                np.concatenate((stats.zscore(nonnorm_chunks[0]), np.zeros(chunk_len - len(nonnorm_chunks[0])))), axis=0)
+                np.concatenate((safe_zscore(nonnorm_chunks[0]), np.zeros(chunk_len - len(nonnorm_chunks[0])))), axis=0)
         return chunks, borders, nonnorm_chunks
 
     current_batch = []
@@ -147,13 +154,13 @@ def get_raw_batch2(reader, read_ids, bs, chunk_len=6000, log=False):
         nonnorm_chunks = np.split(signal, borders)
         borders = [0] + borders
         if len(nonnorm_chunks) > 1:
-            chunks = stats.zscore(nonnorm_chunks[:-1], axis=1)
+            chunks = safe_zscore(nonnorm_chunks[:-1], axis=1)
             final_chunk = np.concatenate(
-                (stats.zscore(nonnorm_chunks[-1]), np.zeros(chunk_len - len(nonnorm_chunks[-1]))))
+                (safe_zscore(nonnorm_chunks[-1]), np.zeros(chunk_len - len(nonnorm_chunks[-1]))))
             chunks = np.vstack((chunks, final_chunk))
         else:
             chunks = np.expand_dims(
-                np.concatenate((stats.zscore(nonnorm_chunks[0]), np.zeros(chunk_len - len(nonnorm_chunks[0])))), axis=0)
+                np.concatenate((safe_zscore(nonnorm_chunks[0]), np.zeros(chunk_len - len(nonnorm_chunks[0])))), axis=0)
         return chunks, borders, nonnorm_chunks
 
     current_batch = []
@@ -218,11 +225,11 @@ def get_raw_batch(reader, read_ids, bs, chunk_len=6000):
         nonnorm_chunks = np.split(r.signal, borders)
         borders = [0] + borders
         if len(nonnorm_chunks) > 1:
-            chunks = stats.zscore(nonnorm_chunks[:-1], axis=1)
-            final_chunk = np.concatenate((stats.zscore(nonnorm_chunks[-1]), np.zeros(chunk_len - len(nonnorm_chunks[-1]))))
+            chunks = safe_zscore(nonnorm_chunks[:-1], axis=1)
+            final_chunk = np.concatenate((safe_zscore(nonnorm_chunks[-1]), np.zeros(chunk_len - len(nonnorm_chunks[-1]))))
             chunks = np.concatenate((chunks, np.expand_dims(final_chunk, axis=0)))
         else:
-            chunks = np.expand_dims(np.concatenate((stats.zscore(nonnorm_chunks[0]), np.zeros(chunk_len - len(nonnorm_chunks[-1])))), axis=0)
+            chunks = np.expand_dims(np.concatenate((safe_zscore(nonnorm_chunks[0]), np.zeros(chunk_len - len(nonnorm_chunks[-1])))), axis=0)
         cumsum_sig, cumsum_sig_square = comp_cumsum(chunks)
         tstat1 = comp_tstat(cumsum_sig, cumsum_sig_square, chunk_len, 3)
         diff = diff1(chunks)
@@ -282,7 +289,7 @@ def raw_chunk_signal(read_ids, reader, chunk_len=6000):
             #tqdm.tqdm.write(f'Signal with read id {r.read_id} with length {len(r.signal)} is too short to be processed. Continuing...')
             #continue
         borders = list(range(chunk_len, len(r.signal), chunk_len))
-        chunks = [stats.zscore(c) for c in np.split(r.signal, borders)]
+        chunks = [safe_zscore(c) for c in np.split(r.signal, borders)]
         #chunks = np.split(r.signal, borders)
         padding = np.zeros(chunk_len - len(chunks[-1]))
         chunks[-1] = np.concatenate((chunks[-1], padding))

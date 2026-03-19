@@ -249,7 +249,8 @@ def process_chunk(aln, read, adjust_type=None, predict=False, chunk_len=6000, w_
     binary_borders = binary_borders[corrected_start:corrected_end]
 
     signal_chunks = np.split(signal, range(chunk_len, len(signal), chunk_len))
-    signal_chunks = [stats.zscore(c) for c in signal_chunks]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        signal_chunks = [stats.zscore(c) for c in signal_chunks]
     chunk_borders = np.split(binary_borders, range(chunk_len, len(binary_borders), chunk_len))
     for i in range(len(chunk_borders)):
         if np.isnan(signal_chunks[i]).any():
@@ -301,7 +302,8 @@ def process_chunk2(aln, read, adjust_borders=None, predict=False, chunk_len=6000
     signal = signal[corrected_start:corrected_end]
     #signal_chunks = [signal[i : i + chunk_len] for i in range(0, len(signal), chunk_len)]
     signal_chunks = np.split(signal, range(chunk_len, len(signal), chunk_len))
-    signal_chunks = [stats.zscore(c) for c in signal_chunks]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        signal_chunks = [stats.zscore(c) for c in signal_chunks]
     
     #if str(read.read_id) == '1f169841-8c8b-4f57-b20c-04a03d42f106':
     #    print(signal_chunks)
