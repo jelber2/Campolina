@@ -51,15 +51,20 @@ def writer_worker(queue, output_path, schema, mode):
         item = queue.get()
         if item is None:
             break
-        logits, chunk_borders, read_ids, signal_chunks = item
-        peaks = [(logit > 0).nonzero(as_tuple=True)[0] for logit in logits]
-        events = process_output_format(peaks, chunk_borders, read_ids, mode, signal_chunks)
-        if isinstance(events, pd.DataFrame):
-            df = events
-        else:
-            df = events.collect().to_pandas()
-        table = pa.Table.from_pandas(df, schema=schema)
-        writer.write_table(table)
+        try:
+            logits, chunk_borders, read_ids, signal_chunks = item
+            peaks = [(logit > 0).nonzero(as_tuple=True)[0] for logit in logits]
+            events = process_output_format(peaks, chunk_borders, read_ids, mode, signal_chunks)
+            if isinstance(events, pd.DataFrame):
+                df = events
+            else:
+                df = events.collect().to_pandas()
+            if df.empty:
+                continue
+            table = pa.Table.from_pandas(df, schema=schema)
+            writer.write_table(table)
+        except Exception as e:
+            print(f'[writer_worker] skipping batch due to error: {type(e).__name__}: {e}')
     writer.close()
 
 

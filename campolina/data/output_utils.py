@@ -48,16 +48,15 @@ def process_raw_output_format2(peaks, chunk_borders, read_ids, chunks):
     # Convert to full signal system
     signal_peaks, _, _ = convert_to_full_signal_system2(peaks, chunk_borders, read_ids, chunks, mode='raw')
 
-    # Vectorize read_id expansion
     read_ids = np.array(read_ids)
-    #signal_peaks = [torch.tensor(np.array(p), dtype=torch.int32) for p in signal_peaks]
-    full_rids = np.repeat(read_ids, [len(peaks) for peaks in signal_peaks])
+    full_rids = np.repeat(read_ids, [len(p) for p in signal_peaks])
 
-    # Concatenate all signal peaks into a single tensor
-    full_peaks = torch.cat(signal_peaks).cpu()
-    #full_peaks = full_peaks[np.insert(np.diff(full_peaks) > 1, 0, True)]
+    # Guard against batches where no peaks were detected
+    nonempty = [p for p in signal_peaks if len(p) > 0]
+    if not nonempty:
+        return pd.DataFrame({'read_id': full_rids, 'event_start': np.array([], dtype=np.int64)})
 
-    # Create DataFrame directly
+    full_peaks = torch.cat(nonempty).cpu()
     return pd.DataFrame({'read_id': full_rids, 'event_start': full_peaks.numpy()})
 
 
