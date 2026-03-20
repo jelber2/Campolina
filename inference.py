@@ -121,7 +121,9 @@ def predict(model_path, devices, pod5_rids_pairs, bs, tgt_file, workers, mode):
     schema = pa.schema([("read_id", pa.string()), ("event_start", pa.int32())])
     output_path = f"{tgt_file}.parquet"
     # Init worker processes
-    queue = mp.Queue()
+    # maxsize creates backpressure: the main loop blocks when the writer falls
+    # behind, keeping at most ~maxsize batches in RAM at any time.
+    queue = mp.Queue(maxsize=4)
     process = mp.Process(target=writer_worker, args=(queue, output_path, schema, mode))
     process.start()
 
@@ -147,7 +149,11 @@ def predict(model_path, devices, pod5_rids_pairs, bs, tgt_file, workers, mode):
             del signal
             if devices[0].type == "cuda":
                 torch.cuda.empty_cache()
-            queue.put((logits, chunk_borders, read_ids, signal_chunks))
+            # In raw mode signal_chunks is never read by the writer, so pass
+            # None to avoid serialising megabytes of numpy arrays into the queue.
+            queue.put((logits, chunk_borders, read_ids,
+                       None if mode == 'raw' else signal_chunks))
+            del logits, signal_chunks
             batch_id += 1
 
     # Close workers
